@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>TamilNLP</title>
+    <style>
+      *{
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .banner{
+            width: 100%;
+            height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.40),rgba(0,0,0,0.40));
+            background-position: center;
+            background-size: center;  
+        }
+        .navbar{
+            width: 90%;
+            padding: 30px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo{
+            width: 100px;
+            margin-top: -10px;
+            cursor: pointer;
+        }
+        .navbar ul li{
+            list-style: none;
+            display: inline-block;
+            margin: 20px;
+        }
+        .navbar ul li a{
+          text-decoration: none;
+          text-transform: uppercase;
+          color: white;
+          font-weight: 700;
+          padding: 15px;
+        }
+        li a:hover{
+          background: white;
+          transition: 0.6s;
+        }
+        .navbar a:hover{
+           color: black;
+        }
+        .content{
+            width: 100%;
+            position: absolute;
+            color: white;
+            top: 45%;
+            transform: translateY(-50%);
+            text-align: center;
+        }
+        .content h2{
+            margin-top: 80px;
+            font-size: 50px;
+            font-weight: 800;
+        
+        }
+
+        .banner video{
+            position: absolute;
+            right: 0;
+            bottom: 0; 
+            z-index: -1;
+            /* Hide overflowing content */
+            
+        }
+        .cropped-video {
+            position: absolute;
+            top: -10px; 
+            /* Adjust the left position to crop the video from the left */
+            
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            /* Set the height of the video, including the cropped portion */
+        }
+        @media(min-aspect-ratio: 16/9){
+            .banner video{
+                width: 100%;
+                height: auto;
+                max-zoom: 20%;
+            }
+        }
+
+    </style>
+  </head>
+  <body>
+    
+    <div class="banner">
+      <video class="cropped-video" autoplay loop muted plays-inline>
+          <source src="static/temple.mp4" type="video/mp4">
+      </video>
+      <div class="navbar">
+          <img class="logo" src="static/logo.jpeg">
+          <ul>
+            <li><a class="nav-link scrollto active" href="/index">Home</a></li>
+            <li><a href="/rules">Rules & Guidelines</a></li>
+            <li><a href="/annotation" method="GET">Annotation tool</a></li>
+            <li><a href="/iaa_score">IAA Calculation</a></li>
+            </ul>
+      
+        <div class="content">
+          <h2>தமிழ் மொழி செயலாக்கம்</h2>
+          
+      </div>
+  </div>
+    
+
+      
+
+</body>
+</html>

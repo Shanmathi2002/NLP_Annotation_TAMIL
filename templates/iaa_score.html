@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>IAA Calculator</title>
+    <style>
+        body {
+           font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+           color: black;
+           background-color: white;
+        }
+        .annotation{
+            margin: 0 auto; /* Center the table horizontally */
+            border: 2px solid black; 
+            border-collapse: collapse;
+            max-width: 100%;/* Set maximum width to 100% of the parent container */
+            overflow-x: auto;
+            padding:0; /* Enable horizontal scrolling if content overflows */
+         }
+         .predicted_table{
+            border: 2px solid black; 
+            border-collapse: collapse;
+            background-color: white; 
+            color: black;
+         }
+         .iaatable{
+            border: 2px solid black; 
+            border-collapse: collapse;
+            background-color: white; 
+            color: black;
+         }
+         
+          
+          
+        .annotation td {
+            border: 2px solid black; 
+            background-color: white;
+            color: black;/* Add border to cells */
+            padding: 6px; /* Add padding for better spacing */
+        }
+        th {
+            border: 2px solid black;
+            padding: 6px;
+        }
+       
+        /* Apply bottom border to td elements (except the last row) */
+        .b2{
+            padding-left: 700px;
+        }
+        .f3 {
+            
+            background-color: white;
+            color: black;
+            font-size: 15px;
+        }
+      
+
+        /* Hide table header by default */
+        thead {
+            display: none;
+        }
+        h1{
+            text-align: center; 
+            font-size: 35px;
+            color:black;
+        }
+        input.user_input[type="text"]{
+           
+            padding: 3px; 
+            width: 600px; 
+        }  
+        .iaa label{
+            font-size: 25px;
+            color: black;
+        }
+        .f1{
+            background-color: white;
+            color: black;
+            font-size: 17px;
+        } 
+        h2{
+            font-size: 24px;
+        }
+        
+       
+        a {
+            display: block;
+            padding: 20px 16px;
+            background-color: black;
+            color: white;
+            float: left;
+        }
+        a:hover {
+            background-color: rgb(110, 106, 106);
+        }
+        .bgcolortop {
+            background-color: black;
+        }
+        #hehe {
+            float: left;
+            font-size: 16px;
+            
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            
+        }
+        .accordion {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .accordion-btn {
+            background-color: black;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            text-align: left;
+            border: none;
+            outline: none;
+            transition: 0.4s;
+            font-size: 20px;
+        }
+
+        .accordion-panel {
+            padding: 18px;
+            display: none;
+            background-color: white;
+            border: 1px solid black;
+        }
+
+        .active {
+            background-color: rgb(110, 106, 106);
+        }
+        .accordion {
+            display: none;
+        }
+ </style>
+</head>
+<body>
+    <div class="bgcolortop">
+        <ul>
+            <li id="hehe"><a href="/rules">Rules & Guidelines</a></li>
+            <li id="hehe"><a href="/annotation">Annotation</a></li>
+            <li id="hehe"><a href="/index">Back to home</a></li>
+        </ul>
+    </div>
+    <h1>IAA CALCULATOR</h1>
+
+    <form class="iaa" id="inputForm">
+        <label for="user_input">Enter Input Data:</label>
+        <br>
+        <div id="input-container">
+            <input class="user_input" type="text" id="user_input" name="user_input" required placeholder="Type or click the microphone button..." style="width: 500px;height: 26px;">
+            <button id="micButton" onclick="startSpeechRecognition()"style="width: 30px; height: 30px;"><i class="fa fa-microphone"></i></button>
+        </div>
+
+        <br><br>
+        <table id="annotationTable" class="annotation">
+            <thead>
+                <tr>
+                    <th>Token</th>
+                    <th>Lemma</th>
+                    <th>UPOS</th>
+                    <th>XPOS</th>
+                    <th>Deprel</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        <button class="f1" type="submit" id="readyButton" class="btn btn-primary">Ready to Annotate</button>
+        <br>
+        <div class="b2" id="actionButtons" style="display: none;">
+            <button class="f3" type="button" id="addRowButton" class="btn btn-primary">Add Row</button>
+            <button class="f3" type="button" id="deleteRowButton" class="btn btn-danger">Delete Last Row</button>
+            <button class="f3" type="submit" id="calculateButton" class="btn btn-primary">Calculate IAA Score</button>
+        </div>
+    </form>
+    <br><br>
+    <div class="accordion" id="accordion">
+        <button class="accordion-btn" id="resultBtn">Click for Predicted annotations</button>
+        <div class="accordion-panel" id="resultDivPanel">
+            <div id="resultDiv"></div>
+        </div>
+
+        <button class="accordion-btn" id="iaaBtn">Click for IAA scores</button>
+        <div class="accordion-panel" id="iaaDivPanel">
+            <div id="iaaDiv"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("readyButton").addEventListener("click", function() {
+            document.getElementById("actionButtons").style.display = "block";
+            document.getElementById("readyButton").style.display = "none";
+        });
+        document.getElementById("addRowButton").addEventListener("click", function() {
+            addRow();
+        });
+
+        document.getElementById("deleteRowButton").addEventListener("click", function() {
+            deleteLastRow();
+        });
+        var isNewRowAdded = false;
+        document.getElementById("inputForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the default form submission behavior
+            
+            var formData = new FormData(this);
+            formData.append("user_input", document.getElementById("user_input").value);
+           
+            // Show table header
+            var tableHeader = document.querySelector("thead");
+            tableHeader.style.display = "table-header-group";
+            // Get table body
+            var tableBody = document.querySelector("tbody");
+
+            // // Clear existing rows
+            // tableBody.innerHTML = "";
+
+            // Add a new row to the table
+            if (!isNewRowAdded) {
+                // Add a new row to the table only if it hasn't been added before
+                var newRow = tableBody.insertRow();
+                var columnNames = ["tokens[]", "lemma[]", "upos[]", "xpos[]", "deprel[]"];
+
+                for (var i = 0; i < columnNames.length; i++) {
+                    var cell = newRow.insertCell(i);
+                    var input = document.createElement("input");
+                    input.type = "text";
+                    input.name = columnNames[i];
+                    input.className = "input-cell";
+                    cell.appendChild(input);
+                }
+
+                isNewRowAdded = true; // Set the flag to true after adding the new row
+            }
+            // Send form data using AJAX
+            fetch("/iaa_score", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the response data (update UI, display results, etc.)
+                var resultDiv = document.getElementById("resultDiv");
+                var tableHTML = "<table class='predicted_table'><tr><th>Token</th><th>Lemma</th><th>UPOS</th><th>XPOS</th><th>Deprel</th></tr><tbody>";
+                if (data.error) {
+                    // Display the error message on the webpage
+                    resultDiv.innerHTML = "<p>Error: " + data.error + "</p>";
+                    iaaDiv.innerHTML = ""; // Clear any previous IAA data
+                }
+                else{
+                for (var i = 0; i < data.predictedAnnotations[0].length; i++) {
+                    var token = data.predictedAnnotations[0][i];
+                    var lemma = data.predictedAnnotations[1][i];
+                    var upos = data.predictedAnnotations[2][i];
+                    var xpos = data.predictedAnnotations[3][i];
+                    var deprel = data.predictedAnnotations[4][i];
+
+                    tableHTML += `<tr><td>${token}</td><td>${lemma}</td><td>${upos}</td><td>${xpos}</td><td>${deprel}</td></tr>`;
+                }
+                // Check if there are existing rows in the table
+                }
+                tableHTML += "</tbody></table>";
+                resultDiv.innerHTML = tableHTML;
+                var iaaDiv=document.getElementById("iaaDiv");
+                if (Array.isArray(data.iaaScore)) {
+                // Convert the list to a comma-separated string
+                var iaaScoreString = data.iaaScore.join(',');
+                var iaaScores = iaaScoreString.split(',');
+                var iaaHTML = "<table class='iaatable'><tr><th>Token</th><th>Lemma</th><th>UPOS</th><th>XPOS</th><th>Deprel</th></tr><tbody>";
+                iaaHTML+=`<tr><td>${iaaScores[0]}</td><td>${iaaScores[1]}</td><td>${iaaScores[2]}</td><td>${iaaScores[3]}</td><td>${iaaScores[4]}</td></tr>`;
+                iaaDiv.innerHTML=iaaHTML;
+                }
+                // JavaScript to handle opening and closing modals
+
+                
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                // Display the error message on the webpage only if resultDiv and iaaDiv exist
+                var resultDiv = document.getElementById("resultDiv");
+                var iaaDiv = document.getElementById("iaaDiv");
+                if (resultDiv && iaaDiv) {
+                    resultDiv.innerHTML = "<p>Recheck your Tokenization !</p>";
+                    iaaDiv.innerHTML = ""; // Clear any previous IAA data
+                }
+            });
+        });
+        var calculateButton = document.getElementById("calculateButton");
+        var accordion = document.getElementById("accordion");
+
+        calculateButton.addEventListener("click", function() {
+            accordion.style.display = "block";
+            toggleAccordion(resultDivPanel);
+        });
+
+        var resultBtn = document.getElementById("resultBtn");
+        var iaaBtn = document.getElementById("iaaBtn");
+        var resultDivPanel = document.getElementById("resultDivPanel");
+        var iaaDivPanel = document.getElementById("iaaDivPanel");
+
+        resultBtn.addEventListener("click", function() {
+            toggleAccordion(resultDivPanel);
+        });
+
+        iaaBtn.addEventListener("click", function() {
+            toggleAccordion(iaaDivPanel);
+        });
+
+        function toggleAccordion(panel) {
+            if (panel.style.display === "block") {
+                panel.style.display = "none";
+            } else {
+                panel.style.display = "block";
+            }
+        }
+
+        function addRow() {
+            var table = document.getElementById("annotationTable").getElementsByTagName('tbody')[0];
+            var newRow = table.insertRow();
+
+            var columnNames = ["tokens[]", "lemma[]", "upos[]", "xpos[]", "deprel[]"];
+
+            for (var i = 0; i < columnNames.length; i++) {
+                var cell = newRow.insertCell(i);
+                var input = document.createElement("input");
+                input.type = "text";
+                input.name = columnNames[i];
+                input.className = "input-cell";
+                
+                cell.appendChild(input);
+            }
+        }
+
+        function deleteLastRow() {
+            var table = document.getElementById("annotationTable");
+            if (table.rows.length > 1) {
+                table.deleteRow(table.rows.length - 1);
+            }
+        }
+
+        function startSpeechRecognition() {
+            const textInput = document.getElementById('user_input');
+            const micButton = document.getElementById('micButton');
+
+            let recognizing = false;
+
+            if (!recognizing) {
+                recognizing = true;
+                micButton.style.backgroundColor = 'red'; // Change button color to indicate listening
+
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'ta-IN'; // Set the language to Tamil
+
+                recognition.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript;
+                    textInput.value = transcript; // Set the recognized speech in the input box
+                };
+
+                recognition.onend = function() {
+                    recognizing = false;
+                    micButton.style.backgroundColor = 'initial'; // Reset button color
+                };
+
+                recognition.start();
+            } else {
+                recognizing = false;
+                micButton.style.backgroundColor = 'initial'; // Reset button color
+            }
+        }
+       
+    </script>
+</body>
+</html>

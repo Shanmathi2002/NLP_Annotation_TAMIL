@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Annotations</title>
+    <style>
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            background-color: white;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color:black;
+        }
+        table {
+            margin: 0 auto;
+            border: 2px solid black;
+            border-collapse: collapse;
+        }
+        td, th {
+            border: 2px solid black;
+            padding: 8px;
+        }
+        td:not(:last-child) {
+            border-bottom: 1px solid black;
+        }
+        form.predict {
+            text-align: center;
+            
+        }
+         
+        #sentence{
+             text-align: center;
+        }
+        a {
+            display: block;
+            padding: 14px 16px;
+            background-color: black;
+            color: white;
+            float: left;
+        }
+        .f1{
+            background-color: white;
+            color: black;
+            font-size: 20px;
+        } 
+        a:hover {
+            background-color: rgb(110, 106, 106);
+        }
+        .bgcolortop {
+            background-color: black;
+        }
+        #hehe {
+            float: left;
+            font-size: 16px;
+        }
+        ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        .hidden {
+            display: none;
+       }
+    </style>
+</head>
+<body>
+<div class="bgcolortop">
+    <ul>
+        <li id="hehe"><a href="/rules">Rules & Guidelines</a></li>
+        <li id="hehe"><a href="/iaa_score">IAA Calculator</a></li>
+        <li id="hehe"><a href="/index">Back to home</a></li>
+    </ul>
+</div>
+<br>
+<h1 style="text-align:center">Annotation</h1>
+<br>
+<form class="predict" id="predict" action="{{ url_for('annotation')}}" method="post">
+    <div id="input-container">
+        <input type="text" name="user_input" id="textInput" placeholder="Type or click the microphone button..." required="required" style="width: 500px;height: 26px;" />
+        <button id="micButton" onclick="startSpeechRecognition()"  style="width: 30px; height: 30px;"><i class="fa fa-microphone"></i></button>
+    </div>
+    <br>
+    <button class="f1" type="submit" class="btn btn-primary btn-block btn-large" width="80px">Annotate</button>
+</form>
+
+<script>
+    let recognizing = false;
+
+    function startSpeechRecognition() {
+        const textInput = document.getElementById('textInput');
+        const micButton = document.getElementById('micButton');
+
+        if (!recognizing) {
+            recognizing = true;
+            micButton.style.backgroundColor = 'red'; // Change button color to indicate listening
+
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'ta-IN'; // Set the language to Tamil
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                textInput.value = transcript; // Set the recognized speech in the input box
+            };
+
+            recognition.onend = function() {
+                recognizing = false;
+                micButton.style.backgroundColor = 'initial'; // Reset button color
+            };
+
+            recognition.start();
+        } else {
+            recognizing = false;
+            micButton.style.backgroundColor = 'initial'; // Reset button color
+        }
+    }
+</script>
+
+<h2 id="sentence">Sentence : {{ sent }}</h2>
+<h2 id="sentence">Transliteration : {{ translit }}</h2>
+<h2 id="sentence">Translation : {{ transla }}</h2>
+<table class="table">
+    <thead class="hidden">
+        <tr>
+            <th>Tokenization</th>
+            <th>Lemmatization</th>
+            <th>UPOS</th>
+            <th>XPOS</th>
+            <th>Features</th>
+            <th>Deprel</th>
+            <th>MISC</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for i in range(ver1|length) %}
+        <tr>
+            <td>{{ ver1[i] }}</td>
+            <td>{{ ver2[i] }}</td>
+            <td>{{ ver3[i] }}</td>
+            <td>{{ ver4[i] }}</td>
+            <td>{{ ver5[i] }}</td>
+            <td>{{ ver6[i] }}</td>
+            <td>{{ ver7[i] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Check if there are rows in the table body
+        var rows = document.querySelectorAll("table tbody tr");
+        if (rows.length > 0) {
+            // If there are rows, remove the 'hidden' class from the table header
+            document.querySelector("table thead").classList.remove("hidden");
+        }
+    });
+</script>
+</body>
+</html>
